@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Bruger login</title>
+    <link rel="stylesheet" href="app.css" />
+    <script src="/./klientkode.js"></script>
+</head>
+<body>
+<br>
+<h2 align="center">G25 Tetris Highscore liste</h2>
+    <div style="text-align: center">
+        <span style="font-family: sans-serif">Log ind for at fortsætte:</span>
+    </div>
+<form>
+    <div>
+        <br>
+        <br>
+        <div>Brugernavn:</div>
+        <input type=text id="studienr" required>
+    </div>
+    <br>
+    <div>
+        <div>Password:</div>
+        <input type=password id="password" required>
+    </div>
+    <br>
+    <button type="button" id="loginknap" onclick="login()">Login</button>
+</form>
+<p id="statustekst"></p>
+</body>
+</html>
