@@ -1,31 +1,34 @@
 package firebase;
 
-import brugerautorisation.data.Bruger;
-import brugerautorisation.data.TestBruger;
+import brugerautorisation.data.DbBruger;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
-import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.api.Response;
+import org.eclipse.jetty.client.api.Result;
 
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class FirebaseService {
 
     private Firestore dbFirestore = FirestoreClient.getFirestore();
-    private CollectionReference collectionRef = dbFirestore.collection("Highscores");
 
-    // 2jtX8G4VEctxGUhq0GV5
-    public TestBruger getBrugerDetails(String name){
-        DocumentReference documentReference = dbFirestore.collection("players").document(name);
+    public DbBruger getBrugerDetails(String studienr){
+        CollectionReference collectionRef = dbFirestore.collection("Highscores");
+        DocumentReference documentReference = collectionRef.document(studienr);
         ApiFuture<DocumentSnapshot> future = documentReference.get();
 
-        TestBruger bruger = null;
+        DbBruger bruger = null;
         DocumentSnapshot document;
         try {
             document = future.get();
 
             if (document.exists()){
-                bruger = document.toObject(TestBruger.class);
+                bruger = document.toObject(DbBruger.class);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -35,7 +38,38 @@ public class FirebaseService {
         return bruger;
     }
 
-    public void loadScores(){
+    // https://firebase.google.com/docs/firestore/query-data/get-data#java_11
+    public HashMap<String, DbBruger> getUsers(){
+        ApiFuture<QuerySnapshot> future = dbFirestore.collection("Highscores").get();
+        HashMap<String, DbBruger> brugerHash = new HashMap<>();
+        try {
+            List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+            for (QueryDocumentSnapshot document : documents){
+                DbBruger dbBruger = document.toObject(DbBruger.class);
+                brugerHash.put(document.getId(), dbBruger);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return brugerHash;
+    }
+
+    public List<String> getStudentIDs(){
+        ApiFuture<QuerySnapshot> future = dbFirestore.collection("Highscores").get();
+        List<String> studentIDs = new ArrayList<>();
+        try {
+            List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+            for (QueryDocumentSnapshot document : documents){
+                studentIDs.add(document.getId());
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return studentIDs;
     }
 
 

@@ -1,13 +1,17 @@
 import brugerautorisation.data.Bruger;
-import brugerautorisation.data.TestBruger;
+import brugerautorisation.data.DbBruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
-import com.google.cloud.firestore.CollectionReference;
 import firebase.FirebaseInitialize;
 import firebase.FirebaseService;
 import io.javalin.Javalin;
 import io.javalin.http.UnauthorizedResponse;
 
 import java.rmi.Naming;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("NonAsciiCharacters")
 public class Server {
@@ -58,22 +62,25 @@ public class Server {
 
         });
 
-        app.get("/:studienr/spil/info", ctx -> {
+        app.get("highscores/info", ctx -> {
 
-//            String[] jsonArray = new String[6];
-//            jsonArray[0] = synligtOrd;
-//            jsonArray[1] = ordet;
-//            jsonArray[2] = brugteBogstaver;
-//            jsonArray[3] = status;
-//            jsonArray[4] = liv;
-//            jsonArray[5] = forkerte;
-//            ctx.json(jsonArray);
+            HashMap<String, DbBruger> brugerHash = firebaseService.getUsers();
+            TimeUnit.MILLISECONDS.sleep(5);
+            DbBruger[] jsonArray = new DbBruger[brugerHash.size()];
+            List<String> studentIDs = new ArrayList<>();
+
+            for (Map.Entry<String, DbBruger> entry : brugerHash.entrySet()){
+                studentIDs.add(entry.getKey());
+            }
+
+            for (int i = 0; i < brugerHash.size(); i++){
+                jsonArray[i] = brugerHash.get(studentIDs.get(i));
+            }
+            ctx.json(jsonArray);
         });
 
-        app.get("/:studienr/highscores/", ctx -> {
+        app.get("/highscores/", ctx -> {
             ctx.render("webapp/highscores.html");
-            TestBruger testBruger = firebaseService.getBrugerDetails("2jtX8G4VEctxGUhq0GV5");
-            System.out.println("Hentet bruger med navn: '" + testBruger.getName() + "' fra databasen.");
         });
 
     }
