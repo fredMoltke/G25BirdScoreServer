@@ -1,5 +1,5 @@
 import brugerautorisation.data.Bruger;
-import brugerautorisation.data.DbBruger;
+import firebase.DbBruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
 import firebase.FirebaseInitialize;
 import firebase.FirebaseService;

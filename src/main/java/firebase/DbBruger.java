@@ -1,4 +1,4 @@
-package brugerautorisation.data;
+package firebase;
 
 public class DbBruger {
 
