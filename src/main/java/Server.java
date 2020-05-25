@@ -1,4 +1,6 @@
 import brugerautorisation.data.Bruger;
+import brugerautorisation.data.Spiller;
+import com.google.gson.Gson;
 import firebase.DbBruger;
 import brugerautorisation.transport.rmi.Brugeradmin;
 import firebase.FirebaseInitialize;
@@ -35,22 +37,18 @@ public class Server {
         app.before(ctx -> {
             System.out.println("Javalin Server fik " + ctx.method() + " på " + ctx.url() + " med query " + ctx.queryParamMap() + " og form " + ctx.formParamMap());
         });
-        /*
-        app.exception(Exception.class, (e, ctx) -> {
-            e.printStackTrace();
-            ctx.status(408);
-        });
-*/
+
         app.post("/login/", ctx -> {
-            String brugernavn = ctx.queryParam("studienr");
-            String kodeord = ctx.queryParam("password");
+            Gson gson = new Gson();
+            String body = ctx.body();
+            Spiller spiller = gson.fromJson(body, Spiller.class);
 
             try{
-                Bruger bruger = ba.hentBruger(brugernavn, kodeord);
-                if (bruger.brugernavn.equals(brugernavn) && bruger.adgangskode.equals(kodeord)) {
+                Bruger bruger = ba.hentBruger(spiller.getStudienr(), spiller.getPassword());
+                if (bruger.brugernavn.equals(spiller.getStudienr()) && bruger.adgangskode.equals(spiller.getPassword())) {
                     ctx.status(200);
-                    String fornavn = bruger.fornavn;
-                    ctx.result(fornavn);
+                    String brugerJson = gson.toJson(bruger);
+                    ctx.result(brugerJson);
                     // logget ind
                     System.out.println("Du er logget ind!");
                 }
@@ -60,6 +58,24 @@ public class Server {
                 throw new UnauthorizedResponse("Forkert brugernavn eller adgangskode");
             }
 
+        });
+
+        app.post("/score/", ctx -> {
+            Gson gson = new Gson();
+            String body = ctx.body();
+            Spiller spiller = gson.fromJson(body, Spiller.class);
+            DbBruger dbBruger = new DbBruger(spiller.getFornavn(), spiller.getScore());
+            dbBruger.setStudienr(spiller.getStudienr());
+            try {
+                firebaseService.saveScore(dbBruger);
+            } catch (Exception e) {
+                ctx.status(500);
+                e.printStackTrace();
+                return;
+            }
+            String spillerJson = gson.toJson(spiller);
+            ctx.result(spillerJson);
+            ctx.status(200);
         });
 
         app.get("highscores/info", ctx -> {

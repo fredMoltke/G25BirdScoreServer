@@ -7,6 +7,7 @@ import com.google.firebase.cloud.FirestoreClient;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class FirebaseService {
@@ -52,20 +53,12 @@ public class FirebaseService {
         return brugerHash;
     }
 
-    public List<String> getStudentIDs(){
-        ApiFuture<QuerySnapshot> future = dbFirestore.collection("Highscores").get();
-        List<String> studentIDs = new ArrayList<>();
-        try {
-            List<QueryDocumentSnapshot> documents = future.get().getDocuments();
-            for (QueryDocumentSnapshot document : documents){
-                studentIDs.add(document.getId());
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        return studentIDs;
+    public void saveScore(DbBruger bruger){
+        Map<String, Object> dbBrugerHash = new HashMap<>();
+        dbBrugerHash.put("navn", bruger.getNavn());
+        dbBrugerHash.put("score", bruger.getScore());
+        dbFirestore.collection("Highscores").document(bruger.getStudienr()).set(dbBrugerHash);
+        System.out.println("Score upload - navn: " + bruger.getNavn() + " | score: " + bruger.getScore());
     }
 
 
