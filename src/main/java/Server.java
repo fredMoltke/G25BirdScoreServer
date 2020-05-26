@@ -6,6 +6,7 @@ import brugerautorisation.transport.rmi.Brugeradmin;
 import firebase.FirebaseInitialize;
 import firebase.FirebaseService;
 import io.javalin.Javalin;
+import io.javalin.http.InternalServerErrorResponse;
 import io.javalin.http.UnauthorizedResponse;
 
 import java.rmi.Naming;
@@ -53,8 +54,7 @@ public class Server {
                     System.out.println("Du er logget ind!");
                 }
             }catch  (IllegalArgumentException e){
-                ctx.status(401);
-                System.out.println("forkert brugernavn eller adgangskode.");
+                System.out.println("Forkert brugernavn eller adgangskode.");
                 throw new UnauthorizedResponse("Forkert brugernavn eller adgangskode");
             }
 
@@ -69,9 +69,8 @@ public class Server {
             try {
                 firebaseService.saveScore(dbBruger);
             } catch (Exception e) {
-                ctx.status(500);
                 e.printStackTrace();
-                return;
+                throw new InternalServerErrorResponse("Noget gik galt med kommunikationen til databasen");
             }
             String spillerJson = gson.toJson(spiller);
             ctx.result(spillerJson);

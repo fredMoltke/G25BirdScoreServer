@@ -1,11 +1,19 @@
-var studienr;
+var studienummer, kodeord, spiller;
 
 function login(){
-    studienr = document.getElementById("studienr").value;
-    password = document.getElementById("password").value;
+    studienummer = document.getElementById("studienr").value;
+    kodeord = document.getElementById("password").value;
 
-    fetch("/login/?studienr="+studienr+"&password="+password, {
-        method: 'POST'
+    spiller = {
+        studienr: studienummer,
+        fornavn: "",
+        score: "",
+        password: kodeord
+    };
+
+    fetch("/login/", {
+        method: 'POST',
+        body: JSON.stringify(spiller),
     })
         .then((response) => response.status)
         .then(function (data){
